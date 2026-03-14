@@ -14,7 +14,7 @@ proxmox_tls_insecure     = true
 # ============================================
 
 # VMID del template a clonar
-# Obtener con: pvesh get /nodes/pve/qemu --output-format json | python3 -m json.tool | grep -B2 "debian"
+# Obtener con: pvesh get /nodes/pve/qemu --output-format json | python3 -m json.tool | grep -B2 "<CLOUD_USER>"
 template_vm_id = <TEMPLATE_VMID>
 
 target_node   = "<PROXMOX_NODE_NAME>"
