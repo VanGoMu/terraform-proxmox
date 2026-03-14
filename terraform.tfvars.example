@@ -1,0 +1,96 @@
+# ============================================
+# Credenciales Proxmox
+# ============================================
+# Copia este archivo a terraform.tfvars y ajusta los valores.
+# NUNCA subas terraform.tfvars al repositorio.
+
+proxmox_api_url          = "https://<PROXMOX_IP>:8006/"
+proxmox_api_token_id     = "<USER>@pve!<TOKEN_NAME>"
+proxmox_api_token_secret = "<TOKEN_SECRET>"
+proxmox_tls_insecure     = true
+
+# ============================================
+# Configuración Global de VMs
+# ============================================
+
+# VMID del template a clonar
+# Obtener con: pvesh get /nodes/pve/qemu --output-format json | python3 -m json.tool | grep -B2 "debian"
+template_vm_id = <TEMPLATE_VMID>
+
+target_node   = "<PROXMOX_NODE_NAME>"
+template_name = "<TEMPLATE_NAME>"
+vm_storage    = "<STORAGE_NAME>"
+# vm_disk_size = 100  # Tamaño de disco en GB (default: 100)
+
+# ============================================
+# Configuración de Red
+# ============================================
+
+network_bridge    = "<BRIDGE_NAME>"
+vm_gateway        = "<GATEWAY_IP>"
+vm_nameserver     = "<DNS_IP>"
+# vm_subnet_prefix = 24  # Prefijo de subred (default: 24)
+
+# ============================================
+# Cloud-Init y SSH
+# ============================================
+
+cloud_init_user     = "<USERNAME>"
+cloud_init_password = "<PASSWORD>"
+
+# Ruta al archivo de clave pública SSH para cloud-init (dejar vacío para deshabilitar)
+# Ejemplo: ssh_public_key_file = "~/.ssh/id_ed25519.pub"
+ssh_public_key_file  = ""
+# Ruta al archivo de clave privada SSH para los provisioners (dejar vacío para deshabilitar)
+ssh_private_key_file = ""
+
+# ============================================
+# Opciones de Control
+# ============================================
+
+# Habilitar QEMU Guest Agent en la configuración de Proxmox
+# (Cambia a true DESPUÉS de que los provisioners lo instalen)
+enable_qemu_agent  = false
+install_qemu_agent = true
+start_on_boot      = true
+
+# ============================================
+# Cluster Kubernetes
+# ============================================
+
+# Subred de la LAN (para exports NFS y reglas de red)
+k8s_network_cidr = "<LAN_CIDR>"
+# k8s_pod_network_cidr = "10.244.0.0/16"  # CIDR de pods (default: 10.244.0.0/16)
+
+k8s_nodes = {
+  master  = { vm_name = "<NAME>", vm_id = <VMID>, ip = "<IP>", cores = 4,  memory = 8192,  role = "master" }
+  worker1 = { vm_name = "<NAME>", vm_id = <VMID>, ip = "<IP>", cores = 8,  memory = 16384, role = "worker" }
+  worker2 = { vm_name = "<NAME>", vm_id = <VMID>, ip = "<IP>", cores = 8,  memory = 16384, role = "worker" }
+}
+
+# ============================================
+# VMs de Servicios (Docker / Services)
+# ============================================
+
+service_vms = {
+  docker = {
+    vm_name     = "<NAME>"
+    vm_id       = <VMID>
+    ip          = "<IP>"
+    cores       = 2
+    memory      = 4096
+    description = "Docker services"
+    tags        = ["docker_host"]
+    script_type = "docker"
+  }
+  services = {
+    vm_name     = "<NAME>"
+    vm_id       = <VMID>
+    ip          = "<IP>"
+    cores       = 4
+    memory      = 8192
+    description = "Hosted services"
+    tags        = ["services_host"]
+    script_type = "services"
+  }
+}
